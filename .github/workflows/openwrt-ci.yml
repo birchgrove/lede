@@ -8,11 +8,18 @@
 name: OpenWrt-CI
 
 on:
-  schedule:
-    - cron: 0 20 * * *
-  push:
-    branches:
-      - master
+  workflow_dispatch:
+    inputs:
+      buildPlatform:
+        description: 'Build platform'
+        required: true
+        default: 'x86'
+        type: choice
+        options:
+        - x86
+        - hi3
+        - ph2
+        - hi1s
 
 permissions:
   contents: read
@@ -29,9 +36,11 @@ jobs:
       - name: Space cleanup and Initialization environment
         env:
           DEBIAN_FRONTEND: noninteractive
+          BUILD_PLATFORM: ${{ inputs.buildPlatform }}
         run: |
           docker rmi `docker images -q`
           sudo -E lscpu
+          echo "Build platform: $PLATFORM"
           sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
           sudo -E apt-mark hold grub-efi-amd64-signed
           sudo -E apt update
@@ -48,7 +57,6 @@ jobs:
 
       - name: Update feeds
         run: |
-          sed -i 's/#src-git helloworld/src-git helloworld/g' ./feeds.conf.default
           ./scripts/feeds update -a
           ./scripts/feeds install -a
 
@@ -72,23 +80,7 @@ jobs:
 
       - name: Prepare artifact
         run: |
-          mkdir -p ./artifact/package
-          mkdir -p ./artifact/buildinfo
           rm -rf $(find ./bin/targets/ -type d -name "packages")
-          cp -rf $(find ./bin/packages/ -type f -name "*.ipk") ./artifact/package/
-          cp -rf $(find ./bin/targets/ -type f -name "*.buildinfo" -o -name "*.manifest") ./artifact/buildinfo/
-
-      - name: Upload buildinfo
-        uses: actions/upload-artifact@v3
-        with:
-          name: OpenWrt_buildinfo
-          path: ./artifact/buildinfo/
-
-      - name: Upload package
-        uses: actions/upload-artifact@v3
-        with:
-          name: OpenWrt_package
-          path: ./artifact/package/
 
       - name: Upload firmware
         uses: actions/upload-artifact@v3
