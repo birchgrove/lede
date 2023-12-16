@@ -69,11 +69,11 @@ jobs:
         run: make defconfig
 
       - name: Download packages
-        run: make download -j16 V=s
+        run: make download -j16
 
       - name: Compile firmware
         run: |
-          make -j$(nproc) V=s || make -j1 V=s
+          make -j$(nproc) || make -j1 V=s
           echo "======================="
           echo "Space usage:"
           echo "======================="
