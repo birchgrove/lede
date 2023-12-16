@@ -6,5 +6,5 @@ if [ -z "${BUILD_PLATFORM}" ];then
 	exit 0
 fi
 
-echo "platform is ${BUILD_PLATFORM}
+echo "platform is ${BUILD_PLATFORM}"
 cp ${BUILD_PLATFORM}.config .config
