@@ -31,6 +31,7 @@ jobs:
           DEBIAN_FRONTEND: noninteractive
         run: |
           docker rmi `docker images -q`
+          sudo -E lscpu
           sudo -E rm -rf /usr/share/dotnet /etc/mysql /etc/php /etc/apt/sources.list.d /usr/local/lib/android
           sudo -E apt-mark hold grub-efi-amd64-signed
           sudo -E apt update
@@ -55,11 +56,11 @@ jobs:
         run: make defconfig
 
       - name: Download packages
-        run: make download -j16
+        run: make download -j16 V=s
 
       - name: Compile firmware
         run: |
-          make -j$(nproc) || make -j1 V=s
+          make -j$(nproc) V=s || make -j1 V=s
           echo "======================="
           echo "Space usage:"
           echo "======================="
